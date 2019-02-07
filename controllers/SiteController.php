@@ -9,13 +9,23 @@ use yii\web\Response;
 use yii\filters\VerbFilter;
 use app\models\LoginForm;
 use app\models\ContactForm;
-use app\models\Articles;
+//use app\models\Articles;
+//use yii\helpers\Url;
+//use yii\data\Pagination;
+
+
 
 class SiteController extends Controller
 {
     /**
      * {@inheritdoc}
      */
+//    public $enableCsrfValidation = false;
+
+    /**
+     * Все акшины блога перенесены в BlogController
+     */
+
     public function behaviors()
     {
         return [
@@ -64,57 +74,6 @@ class SiteController extends Controller
     {
         return $this->render('index');
     }
-
-    /**
-     * Выводим статьи
-     *
-     */
-    public function actionArticles()
-    {
-
-        $query = Articles::find();
-
-        $articles = $query->orderBy(['date_create' => SORT_DESC])
-//            ->offset($pagination->offset)
-//            ->limit($pagination->limit)
-            ->all();
-
-        $this->view->title = 'Все статьи блога!!!';
-        return $this->render('articles',
-            [
-                'articles' => $articles
-            ]);
-    }
-
-
-    public function actionArticle()
-    {
-        $articleId = Yii::$app->request->get('id', 1);
-        $article = Articles::find()->where(['id' => $articleId])->one();
-        if (!$article) {
-            $article = Articles::find()->where(['id' => 1])->one();
-        }
-
-        $this->view->title = $article->title;
-        return $this->render(
-            'article',
-            [
-                'article' => $article
-            ]
-        );
-    }
-
-
-
-
-
-
-
-
-
-
-
-
 
     /**
      * Login action.

@@ -20,7 +20,7 @@ body {
     border-top: 1px solid #ddd;
     padding-top: 20px;
 }
-/*Закоментировал чтоб не переписывать родные стили bootstrap*/
+
 /*.jumbotron {*/
     /*text-align: center;*/
     /*background-color: transparent;*/
@@ -112,4 +112,8 @@ a.desc:after {
 
 .nav > li > form > button.logout:focus {
     outline: none;
+}
+
+.article {
+    width: 100%;
 }

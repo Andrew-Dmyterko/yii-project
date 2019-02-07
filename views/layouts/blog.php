@@ -23,7 +23,14 @@ AppAsset::register($this);
     <title><?= Html::encode($this->title) ?></title>
     <?php $this->head() ?>
 </head>
-<body>
+
+<!-- Применяем свои стили    -->
+<body style="    /*height: 100%;*/
+    background-size: cover;
+    /*background: #8a6d3b;*/
+    background-image: url('/images/6.jpg');
+    background-attachment:fixed;">
+
 <?php $this->beginBody() ?>
 
 <div class="wrap">
@@ -38,8 +45,16 @@ AppAsset::register($this);
     echo Nav::widget([
         'options' => ['class' => 'navbar-nav navbar-right'],
         'items' => [
+            (!(Yii::$app->user->isGuest) && (Yii::$app->controller->action->id === 'edit' ||
+                                            Yii::$app->controller->action->id === 'add')) ? (
+            ['label' => 'Посмотреть картинки', 'url' => ['/blog/add_pics']]
+            ) : (""
+            ),            !(Yii::$app->user->isGuest) ? (
+            ['label' => 'Загрузить картинки', 'url' => ['/blog/add_pics']]
+            ) : (""
+            ),
             !(Yii::$app->user->isGuest) ? (
-                ['label' => 'Новая статья', 'url' => ['/blog/add']]
+            ['label' => 'Новая статья', 'url' => ['/blog/add']]
             ) : (""
             ),
             ['label' => 'Блог', 'url' => ['/blog/articles']],

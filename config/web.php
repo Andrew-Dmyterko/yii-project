@@ -21,7 +21,8 @@ $config = [
         ],
         'user' => [
             'identityClass' => 'app\models\User',
-            'enableAutoLogin' => true,
+            'enableAutoLogin' => false,
+            'authTimeout' => '600',
         ],
         'errorHandler' => [
             'errorAction' => 'site/error',
@@ -48,11 +49,13 @@ $config = [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
-//                'articles/<page:\d+>' => 'site/articles/',
-                'articles' => 'site/articles',
-                'article/<id:\d+>' => 'site/article',
-                'edit/<id:\d+>' => 'site/edit',
-                'delete/<id:\d+>' => 'site/delete',
+                'articles/<page:\d+>' => 'blog/articles/',
+                'articles' => 'blog/articles',
+                'add_article' => 'blog/add_article',
+                'article/<id:\d+>' => 'blog/article',
+                'edit/<id:\d+>' => 'blog/edit',
+                'delete/<id:\d+>' => 'blog/delete',
+
             ],
         ],
 
