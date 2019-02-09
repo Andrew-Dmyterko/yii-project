@@ -21,6 +21,8 @@ class BlogController extends Controller
      * Мои акшины для блога
      */
 
+    public $layout = 'blog';
+
     /**
      * Выводим все статьи
      *
@@ -168,6 +170,11 @@ class BlogController extends Controller
             // получаем post параметры
             $post = Yii::$app->request->post();
 
+//            echo "<pre>";
+//            var_dump($_FILES);
+//            die;
+//
+
             if (isset ($post['title']) || isset ($post['article_small_text']) || isset ($post['article_full_text'])) {
 
                 if (!empty($_FILES['userfile']['name'])){
@@ -187,15 +194,6 @@ class BlogController extends Controller
                         return;
                     }
                 }
-
-//                echo "<pre>";
-//                print_r($uploaddir) ;
-//                print_r($uploadfile) ;
-//
-//                var_dump($post);
-//                var_dump($_FILES);
-//                var_dump(Yii::$app->request);
-//                die;
 
                 $article = new Articles();
 
@@ -257,4 +255,36 @@ class BlogController extends Controller
             $this->redirect($url, 302);
         }
     }
+
+
+    public function actionAdd_pics()
+    {
+        // проверяем шоб не гость
+        if (!(Yii::$app->user->isGuest)) {
+
+            $dir    = '.';
+            $files1 = scandir($dir);
+            $files2 = scandir($dir, 1);
+
+            print_r($files1);
+            print_r($files2);
+
+            return $this->render(
+                'pictures',
+                [
+                    '$pictures' => $files1,
+                    '$pictures1' => $files2,
+                ]
+            );
+        } else {
+            $url = Url::to(['blog/articles']);
+            $this->redirect($url, 302);
+        }
+
+
+
+
+    }
+
+
 }

@@ -9,6 +9,8 @@ use yii\bootstrap\Nav;
 use yii\bootstrap\NavBar;
 use yii\widgets\Breadcrumbs;
 use app\assets\AppAsset;
+use yii\helpers\Url;
+
 
 AppAsset::register($this);
 ?>
@@ -29,8 +31,9 @@ AppAsset::register($this);
 <div class="wrap">
     <?php
     NavBar::begin([
-        'brandLabel' => Yii::$app->name,
-        'brandUrl' => Yii::$app->homeUrl,
+        'brandLabel' => Yii::$app->nameBlog,
+        'brandUrl' => Url::base(true).Url::to(['blog/articles']),
+//        'brandUrl' => Yii::$app->homeUrl,
         'options' => [
             'class' => 'navbar-inverse navbar-fixed-top',
         ],
@@ -38,10 +41,10 @@ AppAsset::register($this);
     echo Nav::widget([
         'options' => ['class' => 'navbar-nav navbar-right'],
         'items' => [
-            !(Yii::$app->user->isGuest) ? (
-                ['label' => 'Новая статья', 'url' => ['/blog/add']]
-            ) : (""
-            ),
+//            !(Yii::$app->user->isGuest) ? (
+//                ['label' => 'Новая статья', 'url' => ['/blog/add']]
+//            ) : (""
+//            ),
             ['label' => 'Блог', 'url' => ['/blog/articles']],
             ['label' => 'Home', 'url' => ['/site/index']],
             ['label' => 'About', 'url' => ['/site/about']],

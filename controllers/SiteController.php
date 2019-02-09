@@ -10,7 +10,7 @@ use yii\filters\VerbFilter;
 use app\models\LoginForm;
 use app\models\ContactForm;
 //use app\models\Articles;
-//use yii\helpers\Url;
+use yii\helpers\Url;
 //use yii\data\Pagination;
 
 
@@ -82,13 +82,29 @@ class SiteController extends Controller
      */
     public function actionLogin()
     {
+//        стартуем сессию
+        $session = Yii::$app->session;
+        if (!$session->isActive) {
+            $session->open();
+        }
+
+
+        if (!(Yii::$app->request->getUrl()==$_SERVER['HTTP_REFERER']) && (!isset($session['HTTP_REFERER'])) ) {
+            $session->set('HTTP_REFERER', $_SERVER['HTTP_REFERER']);
+        }
+
         if (!Yii::$app->user->isGuest) {
             return $this->goHome();
         }
 
         $model = new LoginForm();
         if ($model->load(Yii::$app->request->post()) && $model->login()) {
-            return $this->goBack();
+
+            $url_refferer = isset($_SESSION['HTTP_REFERER']) ? $_SESSION['HTTP_REFERER'] : null;
+
+            $session->remove('HTTP_REFERER');
+
+            return $this->goBack($url_refferer);
         }
 
         $model->password = '';
@@ -106,7 +122,7 @@ class SiteController extends Controller
     {
         Yii::$app->user->logout();
 
-        return $this->goHome();
+        return $this->goBack($_SERVER['HTTP_REFERER']);
     }
 
     /**

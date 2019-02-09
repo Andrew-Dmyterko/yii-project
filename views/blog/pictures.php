@@ -40,11 +40,11 @@ use yii\widgets\LinkPager;
                     </div>
                     <div class="modal-body">
                         Подтвердите удаление статьи?<br>
-                        <b>"<?= $article['title'] ?>"</b>
+<!--                        <b>"--><?//= $article['title'] ?><!--"</b>-->
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
-                        <a href="<?=$url = Url::to(['blog/delete', 'id' => $article['id']]);?>"> <button type="button"  class="btn btn-primary">Удаление!!!</button></a>
+<!--                        <a href="--><?//=$url = Url::to(['blog/delete', 'id' => $article['id']]);?><!--"> <button type="button"  class="btn btn-primary">Удаление!!!</button></a>-->
                     </div>
                 </div>
             </div>
