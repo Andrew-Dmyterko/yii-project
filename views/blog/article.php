@@ -8,20 +8,36 @@ use yii\widgets\LinkPager;
 
 //foreach($article as $row)
 { ?>
+
 <!--    col-md-offset-3 <div class="jumbotron col-lg-10" style="margin-right: auto; margin-left: auto;"> -->
 <!--    <div class="jumbotron jumbotron-fluid">-->
-    <div class="jumbotron " style="margin-right: auto; margin-left: auto;">
-        <img src="/images/<?= $article->image ?>" alt="" class="pull-right">
+    <div class="jumbotron " style="margin-right: auto; margin-left: auto; padding-right: 10px; white-space: normal;">
+        <img src="/images/<?= $article->image ?>" alt="" class="pull-right" style="margin-right: 0px; padding-left: 10px; padding-right: 0px">
 <!--        <div class="container">-->
-            <h3 class="display-6"><u><?= $article['title'] ?></u></h3>
+        <label for="ArticleFullText">Название фильма:</label>
+        <p class="lead" ><em><b><?= $article['title'] ?></b></em></p>
+<!--        <h3 class="display-3" style="white-space: normal;"><u><pre>--><?//= $article['title'] ?><!--</pre></u></h3>-->
 
             <hr class="my-8">
-            <p class="lead"><em><?= $article['small_text'] ?></em></p>
-            <hr class="my-8">
-            <p class="lead"><em><?= $article['full_text'] ?></em></p>
+        <label for="ArticleFullText">Сюжет:</label>
+            <p class="lead" ><em><?= $article['small_text'] ?></em></p>
+        <div class="form-group">
+            <label for="ArticleFullText">Полная информация о фильме:</label>
+            <textarea name="article_full_text" class="form-control"  id="ArticleFullText" rows="10" readonly><?= $article['full_text'] ?></textarea>
+        </div>
             <a class="btn btn-primary" href="<?=$url = Url::to(['blog/articles']); ?>" target="_self" role="button" >Вернуться на главную</a>
+
+        <script src='/js/autosize.js'></script>
+
+        <script>
+            autosize(document.querySelectorAll('textarea'));
+        </script>
+
+
     <?php    if(!(Yii::$app->user->isGuest)) : ?>
-    <a class="btn btn-primary" href="<?=$url = Url::to(['blog/edit', 'id' => $article['id']]);?>" target="_self" role="button" >Изменить статью</a>
+         <a class="btn btn-primary" href="<?=$url = Url::to(['blog/edit', 'id' => $article['id']]);?>" target="_self" role="button" >Изменить статью</a>
+
+
 
         <!-- Button trigger modal -->
         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCenter">

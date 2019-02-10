@@ -25,17 +25,17 @@ use yii\helpers\Url;
             <form class="col-sm-12" id="main-form" name="form" method="post" enctype="multipart/form-data" action="<?=Url::base(true). Url::to(['blog/edit', 'id' => $article['id']]);?>">
                 <div class="form-group">
 <!--                    action формы    <?//= Url::base(true). Url::to(['blog/edit', 'id' => $article['id']]);?>-->
-                    <label for="ArticleTitle">Заголовок статьи </label>
+                    <label for="ArticleTitle">Название фильма: </label>
                     <textarea name="title" type="text" class="form-control" id="ArticleTitle" rows="2" ><?= $article['title'] ?></textarea>
                 </div>
                 <input type="hidden" name="_csrf"
                        value="<?=Yii::$app->request->getCsrfToken()?>" />
                 <div class="form-group">
-                    <label for="ArticleSmallText">Краткое содержание статьи</label>
+                    <label for="ArticleSmallText">Сюжет:</label>
                     <textarea name="article_small_text" class="form-control" id="ArticleSmallText" rows="2"><?= $article['small_text'] ?></textarea>
                 </div>
                 <div class="form-group">
-                    <label for="ArticleFullText">Полный текст статьи</label>
+                    <label for="ArticleFullText">Полная информация о картине:</label>
                     <textarea name="article_full_text" class="form-control"  id="ArticleFullText" rows="10"><?= $article['full_text'] ?></textarea>
                     <!--                <input name="Article_Full_Text" type="password" class="form-control" id="FullText" placeholder="Confirm Your Password" required>-->
                 </div>
@@ -53,7 +53,13 @@ use yii\helpers\Url;
         </div>
     </div>
 
-    
+<script src='/js/autosize.js'></script>
+
+<script>
+    autosize(document.querySelectorAll('textarea'));
+</script>
+
+
 <!--    --><?php
 //}
 //

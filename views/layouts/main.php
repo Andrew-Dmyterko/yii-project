@@ -31,7 +31,7 @@ AppAsset::register($this);
 <div class="wrap">
     <?php
     NavBar::begin([
-        'brandLabel' => Yii::$app->nameBlog,
+        'brandLabel' => Yii::$app->name,
         'brandUrl' => Url::base(true).Url::to(['blog/articles']),
 //        'brandUrl' => Yii::$app->homeUrl,
         'options' => [
@@ -45,7 +45,7 @@ AppAsset::register($this);
 //                ['label' => 'Новая статья', 'url' => ['/blog/add']]
 //            ) : (""
 //            ),
-            ['label' => 'Блог', 'url' => ['/blog/articles']],
+            ['label' => 'Кинннориум', 'url' => ['/blog/articles']],
             ['label' => 'Home', 'url' => ['/site/index']],
             ['label' => 'About', 'url' => ['/site/about']],
             ['label' => 'Contact', 'url' => ['/site/contact']],

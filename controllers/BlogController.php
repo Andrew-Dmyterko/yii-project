@@ -43,7 +43,7 @@ class BlogController extends Controller
             ->all();
 
         $this->layout = 'blog';
-        $this->view->title = 'Все статьи блога!!!';
+        $this->view->title = 'Кинннориум!!! Все о новинках киноиндустрии.';
         return $this->render(
             'articles',
             [
@@ -66,8 +66,8 @@ class BlogController extends Controller
 
         if (!(bool)$article) {
             $url = Url::to(['blog/articles']);
-            $this->redirect($url, 302);
-            return;
+            return $this->redirect($url, 302);
+
         }
 
         $this->layout = 'blog';
@@ -280,10 +280,17 @@ class BlogController extends Controller
             $url = Url::to(['blog/articles']);
             $this->redirect($url, 302);
         }
+    }
 
-
-
-
+    /**
+     * Выводим страничку О нас
+     *
+     * @return string
+     */
+    public function actionAbout()
+    {
+        $this->view->title = "Киннориум. О нас.";
+        return $this->render('about');
     }
 
 

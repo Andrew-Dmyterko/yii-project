@@ -36,7 +36,7 @@ AppAsset::register($this);
 <div class="wrap">
     <?php
     NavBar::begin([
-        'brandLabel' => Yii::$app->name,
+        'brandLabel' => Yii::$app->nameBlog,
         'brandUrl' => Yii::$app->homeUrl,
         'options' => [
             'class' => 'navbar-inverse navbar-fixed-top',
@@ -45,21 +45,22 @@ AppAsset::register($this);
     echo Nav::widget([
         'options' => ['class' => 'navbar-nav navbar-right'],
         'items' => [
-            (!(Yii::$app->user->isGuest) && (Yii::$app->controller->action->id === 'edit' ||
-                                            Yii::$app->controller->action->id === 'add')) ? (
-            ['label' => 'Посмотреть картинки', 'url' => ['/blog/add_pics']]
-            ) : (""
-            ),            !(Yii::$app->user->isGuest) ? (
-            ['label' => 'Загрузить картинки', 'url' => ['/blog/add_pics']]
-            ) : (""
-            ),
+//            (!(Yii::$app->user->isGuest) && (Yii::$app->controller->action->id === 'edit' ||
+//                                            Yii::$app->controller->action->id === 'add')) ? (
+//            ['label' => 'Посмотреть картинки', 'url' => ['/blog/add_pics']]
+//            ) : (""
+//            ),
+//            !(Yii::$app->user->isGuest) ? (
+//            ['label' => 'Загрузить картинки', 'url' => ['/blog/add_pics']]
+//            ) : (""
+//            ),
             !(Yii::$app->user->isGuest) ? (
             ['label' => 'Новая статья', 'url' => ['/blog/add']]
             ) : (""
             ),
-            ['label' => 'Блог', 'url' => ['/blog/articles']],
-            ['label' => 'Home', 'url' => ['/site/index']],
-            ['label' => 'About', 'url' => ['/site/about']],
+            ['label' => "Кинннориум", 'url' => ['/blog/articles']],
+//            ['label' => 'Home', 'url' => ['/site/index']],
+            ['label' => 'О нас', 'url' => ['/blog/about']],
             ['label' => 'Contact', 'url' => ['/site/contact']],
             Yii::$app->user->isGuest ? (
                 ['label' => 'Login', 'url' => ['/site/login']]
@@ -79,7 +80,7 @@ AppAsset::register($this);
     ?>
 
 
-    <div class="container">
+    <div class="container"">
 
         <?= Breadcrumbs::widget([
             'links' => isset($this->params['breadcrumbs']) ? $this->params['breadcrumbs'] : [],
@@ -90,14 +91,14 @@ AppAsset::register($this);
     </div>
 
 </div>
-
-<footer class="footer">
-    <div class="container">
-        <p class="pull-left">&copy; My Company <?= date('Y') ?></p>
-
-        <p class="pull-right"><?= Yii::powered() ?></p>
-    </div>
-</footer>
+<!---->
+<!--<footer class="footer">-->
+<!--    <div class="container">-->
+<!--        <p class="pull-left">&copy; My Company --><?//= date('Y') ?><!--</p>-->
+<!---->
+<!--        <p class="pull-right">--><?//= Yii::powered() ?><!--</p>-->
+<!--    </div>-->
+<!--</footer>-->
 
 
 <?php $this->endBody() ?>
