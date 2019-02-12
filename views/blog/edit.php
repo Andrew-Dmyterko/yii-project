@@ -40,7 +40,10 @@ use yii\helpers\Url;
                     <!--                <input name="Article_Full_Text" type="password" class="form-control" id="FullText" placeholder="Confirm Your Password" required>-->
                 </div>
                 <div class="form-group">
-                    <input name="userfile" class="form-control-file btn btn-primary" type="file" role="button"><br>
+                    <label for="file">Картинка для центральной страницы</label>
+                    <input id="file" name="userfile" class="form-control-file btn btn-primary" type="file" role="button"><br>
+                    <label for="files">Картинки к фильму</label>
+                    <input id="files" name="userfiles[]" class="form-control-file btn btn-primary" type="file" role="button" multiple><br>
                 <a class="btn btn-primary" href="<?=$url = Url::to(['blog/articles']); ?>" target="_self" role="button" >Вернуться на главную</a>
                 <button type="submit" class="btn btn-primary">Внести изменения</button>
                 </div>

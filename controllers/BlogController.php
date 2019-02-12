@@ -2,6 +2,8 @@
 
 namespace app\controllers;
 
+use app\models\Article_pic;
+use app\models\Comments;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\Controller;
@@ -31,6 +33,7 @@ class BlogController extends Controller
     {
         $query = Articles::find();
         $allArticlesCount = $query->count();
+
         $pagination = new Pagination([
             'totalCount' => $allArticlesCount,
             'pageSize' => 2,
@@ -41,6 +44,10 @@ class BlogController extends Controller
             ->offset($pagination->offset)
             ->limit($pagination->limit)
             ->all();
+
+//        $commentCount[]= [];
+
+
 
         $this->layout = 'blog';
         $this->view->title = 'Кинннориум!!! Все о новинках киноиндустрии.';
@@ -63,6 +70,9 @@ class BlogController extends Controller
     {
         $articleId = Yii::$app->request->get('id');
         $article = Articles::find()->where(['id' => $articleId])->one();
+        $pictures = Article_pic::find()->where(['articleid' => $articleId])->all();
+
+        $comments = Comments::find()->where(['articleid' => $articleId])->all();
 
         if (!(bool)$article) {
             $url = Url::to(['blog/articles']);
@@ -76,10 +86,43 @@ class BlogController extends Controller
         return $this->render(
             'article',
             [
-                'article' => $article
+                'article' => $article,
+                'pictures' => $pictures,
+                'comments' => $comments
             ]
         );
     }
+
+    /**
+     * Добавляем коментарий
+     *
+     */
+    public function actionComment()
+    {
+        // получаем post параметры
+        $post = Yii::$app->request->post();
+
+        $articleId = Yii::$app->request->get('id');
+
+        $comment = new Comments;
+
+        // Если все хорошо готовимся писать в базу
+        $comment->articleid = $articleId;
+        $comment->text = $post['comment_small_text'];
+        $comment->autor = $post['comment_author'];
+        $today = date("Y-m-d");
+        $todayDayTime = date("Y-m-d H:i:s");
+        $comment->commentdaytime = $todayDayTime;
+//        $article['date-time_update'] = $todayDayTime;
+
+        $comment->save();
+
+        $this->layout = 'blog';
+        $url = Url::to(['blog/article', 'id' => $articleId])."#comment";
+        return $this->redirect($url, 302);
+
+    }
+
 
     /**
      * Редактируем одну статью
@@ -92,6 +135,7 @@ class BlogController extends Controller
 
             // получаем post параметры
             $post = Yii::$app->request->post();
+
 
             $articleId = Yii::$app->request->get('id');
 
@@ -121,6 +165,37 @@ class BlogController extends Controller
                     $url = Url::to(['blog/articles']);
                     $this->redirect($url, 302);
                     return;
+                }
+            }
+
+            // запись файлов в article_pic
+            // загрузку файла надо переделать в виде статического метода
+            if (!empty($_FILES['userfiles']['name'][0])){
+
+                foreach ($_FILES['userfiles']['name'] as $id => $val) {
+
+                    $uploaddir = 'images/'; //  /var/www/html/yii-project/web/
+                    $uploadfile = $uploaddir . basename($_FILES['userfiles']['name'][$id]);
+
+                    try {
+                        move_uploaded_file($_FILES['userfiles']['tmp_name'][$id], $uploadfile);
+                        Yii::$app->session->setFlash('success', "Файл " . $_FILES['userfiles']['name'][$id] . "  корректен и был успешно загружен.");
+//                        echo "Файл корректен и был успешно загружен.";
+
+                        $pic = new Article_pic();
+
+//                    Если все хорошо готовимся писать в базу
+                        $pic->articleid = $article->id;
+                        $pic->imagename = $_FILES['userfiles']['name'][$id];
+                        $pic->save();
+                        unset ($pic);
+                    } catch (\Throwable $exception) {
+                        Yii::$app->session->setFlash('error ', "Возможная атака с помощью файловой загрузки! " . $exception->getMessage());
+//                        echo getAlert("Возможная атака с помощью файловой загрузки!");
+                        $url = Url::to(['blog/articles']);
+                        $this->redirect($url, 302);
+                        return;
+                    }
                 }
             }
 
@@ -170,10 +245,6 @@ class BlogController extends Controller
             // получаем post параметры
             $post = Yii::$app->request->post();
 
-//            echo "<pre>";
-//            var_dump($_FILES);
-//            die;
-//
 
             if (isset ($post['title']) || isset ($post['article_small_text']) || isset ($post['article_full_text'])) {
 
@@ -281,6 +352,26 @@ class BlogController extends Controller
             $this->redirect($url, 302);
         }
     }
+
+    /**
+     * Выводим страничку Связаться с нами
+     *
+     * @return Response|string
+     */
+    public function actionContact()
+    {
+        $model = new ContactForm();
+        if ($model->load(Yii::$app->request->post()) && $model->contact(Yii::$app->params['adminEmail'])) {
+            Yii::$app->session->setFlash('contactFormSubmitted');
+
+            return $this->refresh();
+        }
+        return $this->render('contact', [
+            'model' => $model,
+        ]);
+    }
+
+
 
     /**
      * Выводим страничку О нас
