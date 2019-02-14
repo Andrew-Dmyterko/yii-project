@@ -90,7 +90,10 @@ use app\models\Comments;
         <hr class="my-8">
         <p style="font-size: 12px;">
 <!--            <br>Дата и время создания - --><?//= date("d-m-Y H:i:s", strtotime($article['date-time_create'])); ?>
-            Автор статьи - <b><em><?= $article['author']; ?></em></b> Дата и время изменения - <?= date("d-m-Y H:i:s", strtotime($article['date-time_update'])); ?> <a href="<?= $url = Url::to(['blog/article', 'id' => $article->id])."#comment"; ?>"><b>Messages</b> <span class="badge"><?=Comments::find()->where(['articleid' => $article['id']])->count();?></span></a>
+            Автор статьи - <b><em><?= $article['author']; ?></em></b> Дата и время изменения - <?= date("d-m-Y H:i:s", strtotime($article['date-time_update'])); ?>
+            <a href="<?= $url = Url::to(['blog/article', 'id' => $article->id])."#comment"; ?>"><b>Messages</b> <span class="badge"><?=Comments::find()->where(['articleid' => $article['id']])->count();?></span></a>
+            <b>Посетили</b> <span class="badge"><?=$article->visit?></span>
+            <b>Рейтинг</b> <span class="badge"><?=$article->rating?></span>
 
         </p>
     </div>

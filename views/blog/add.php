@@ -47,7 +47,7 @@ use yii\helpers\Url;
                        <label for="file">Картинка для центральной страницы</label>
                       <input id="file" name="userfile" class="form-control-file btn btn-primary" type="file" role="button"><br>
                        <label for="files">Картинки к фильму</label>
-                      <input id="files" name="userfile[]" class="form-control-file btn btn-primary" type="file" role="button" multiple><br>
+                      <input id="files" name="userfiles[]" class="form-control-file btn btn-primary" type="file" role="button" multiple><br>
                        <a class="btn btn-primary" href="<?=$url = Url::to(['blog/articles']); ?>" target="_self" role="button" >Вернуться на главную</a>
                        <button type="submit" class="btn btn-primary">Создать статью</button>
                     </div>

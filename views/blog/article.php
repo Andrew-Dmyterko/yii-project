@@ -2,23 +2,20 @@
 use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\widgets\LinkPager;
+// стартуем сессию
+$session = Yii::$app->session;
+if (!$session->isActive) {
+    $session->open();
+}
 ?>
 
 //  Формируем view просмотра статьи
-
-//foreach($article as $row)
-
-
-<!--    col-md-offset-3 <div class="jumbotron col-lg-10" style="margin-right: auto; margin-left: auto;"> -->
-<!--    <div class="jumbotron jumbotron-fluid">-->
     <div class="jumbotron " style="margin-right: auto; margin-left: auto; padding-right: 10px; white-space: normal;">
         <img src="/images/<?= $article->image ?>" alt="" class="pull-right" style="margin-right: 0px; padding-left: 10px; padding-right: 0px">
-<!--        <div class="container">-->
         <label for="ArticleFullText">Название фильма:</label>
         <p class="lead" ><em><b><?= $article['title'] ?></b></em></p>
-<!--        <h3 class="display-3" style="white-space: normal;"><u><pre>--><?//= $article['title'] ?><!--</pre></u></h3>-->
 
-            <hr class="my-8">
+        <hr class="my-8">
         <label for="ArticleFullText">Сюжет:</label>
             <p class="lead" ><em><?= $article['small_text'] ?></em></p>
         <div class="form-group">
@@ -26,13 +23,8 @@ use yii\widgets\LinkPager;
             <textarea name="article_full_text" class="form-control"  id="ArticleFullText" rows="10" readonly><?= $article['full_text'] ?></textarea>
         </div>
             <a class="btn btn-primary" href="<?=$url = Url::to(['blog/articles']); ?>" target="_self" role="button" >Вернуться на главную</a>
-            <a class="btn btn-primary" href="<?=$url = Yii::$app->request->referrer; ?>" target="_self" role="button" >Вернуться назад</a>
-
-<!--        <script src='/js/autosize.js'></script>-->
-<!---->
-<!--        <script>-->
-<!--            autosize(document.querySelectorAll('textarea'));-->
-<!--        </script>-->
+<!--            <a class="btn btn-primary" href="=$url = Yii::$app->request->referrer; ?>" target="_self" role="button" >Вернуться назад</a>-->
+            <a class="btn btn-primary" href="<?= $url = isset($_SESSION['HTTP_ARTICLE_REFERER']) ? $_SESSION['HTTP_ARTICLE_REFERER'] : Yii::$app->request->referrer; ?>" target="_self" role="button" >Вернуться назад</a>
 
 
     <?php    if(!(Yii::$app->user->isGuest)) : ?>
@@ -70,28 +62,60 @@ use yii\widgets\LinkPager;
             <p style="font-size: 12px;">Дата и время обновления - <?= date("d-m-Y H:i:s", strtotime($article['date-time_update'])); ?>
                  <br>Дата и время создания - <?= date("d-m-Y H:i:s", strtotime($article['date-time_create'])); ?>
                  <br>Автор статьи - <b><em><?= $article['author']; ?></em></b>
+                <b>Посетили</b> <span class="badge"><?=$article->visit?></span>
+                <b>Рейтинг</b> <span class="badge"><?=$article->rating?></span>
             </p>
-<!--        </div>-->
-        <!-- Bootstrap 3 -->
+
+        <!--- fancybox -->
         <?php
         if (!empty($pictures)) : ?>
-            <label for="carousel">Кадры из фильма:</label>
-            <div id="carousel" class="carousel slide" data-ride="carousel" data-interval="3000" align="center" style="box-sizing: content-box; height: 140px" >
-                <div class="carousel-inner">
-                    <?php foreach ($pictures as $id => $picture) : ?>
-                        <div class="item <?= ($id == 0) ? "active" : "" ?> ">
-                            <img class="img-responsive" src="/images/<?=$picture->imagename?>" width="200" height="98" alt="" >
-                        </div>
-                    <?php endforeach; ?>
-
-                </div>
+        <label for="fbox"> Кадры из фильма:</label>
+        <div class="container" id="fbox">
+            <div class="row">
+                <?php foreach ($pictures as $id => $picture) : ?>
+                    <div class="col-md-3 col-sm-4 col-xs-6 thumb">
+                        <a data-fancybox="gallery" rel="group" href="/images/<?=$picture->imagename?>">
+                          <img class="img-responsive" src="/images/<?=$picture->imagename?>" />
+                        </a>
+                    </div>
+                <?php endforeach; ?>
             </div>
+        </div>
         <?php endif; ?>
-    </div>
 
+
+    </div>
+<!--    </div>-->
+<!-- голосовалка -->
+<?php if ($vote_show) : ?>
+<form class="col-sm-5" name="form_vote" method="post" enctype="multipart/form-data" action="<?=Url::base(true).Url::to(['blog/vote', 'id' => $article->id]); ?>" style="margin-left: 60px; margin-top: 20px">
+    <div class="row">
+        <div class="form-group">
+            <input type="hidden" name="_csrf" value="<?=Yii::$app->request->getCsrfToken()?>">
+            <label for="vote">Голосовалка</label>
+            <input type="hidden" name="goback" value="<?=$url = isset($_SESSION['HTTP_ARTICLE_REFERER']) ? $_SESSION['HTTP_ARTICLE_REFERER'] : Yii::$app->request->referrer; ?>"
+            <input id="vote" type="radio" name="vote_score" value="1" > <b> 1 </b>
+            <input id="vote" type="radio" name="vote_score" value="2" > <b> 2 </b>
+            <input id="vote" type="radio" name="vote_score" value="3" > <b> 3 </b>
+            <input id="vote" type="radio" name="vote_score" value="4" > <b> 4 </b>
+            <input id="vote" type="radio" name="vote_score" value="5" > <b> 5 </b>
+            <button class="btn btn-primary" type="submit">Голосуй</button>
+            <b>Рейтинг</b> <span class="badge"><?=$article->rating?></span>
+        </div>
+    </div>
+</form>
+<?php else: ?>
+<div class="col-sm-5" style="margin-left: 45px; margin-top: 20px">
+<b>Вы уже голосовали!!! Ждите!!! Рейтинг</b> <span class="badge"><?=$article->rating?></span>
+</div>
+<?php endif;?>
+
+
+<!-- форма ввода коментов -->
+<p><a name="comment"></a></p>
     <div class="jumbotron " style="margin-right: auto; margin-left: auto; padding-right: 10px; white-space: normal;">
         <div class="row justify-left-left">
-            <form class="col-sm-12" id="main-form" name="formComment" method="post" enctype="multipart/form-data" action="<?=Url::base(true).Url::to(['blog/comment', 'id' => $article->id]); ?>;?>">
+            <form class="col-sm-12" id="main-form" name="formComment" method="post" enctype="multipart/form-data" action="<?=Url::base(true).Url::to(['blog/comment', 'id' => $article->id]); ?>">
                 <input type="hidden" name="_csrf" value="<?=Yii::$app->request->getCsrfToken()?>">
                 <div class="form-group">
                     <label for="commText">Ваш комментарий</label>
@@ -103,24 +127,27 @@ use yii\widgets\LinkPager;
                 </div>
                 <div class="row">
                     <div class="form-group">
+                        <input type="hidden" name="goback" value="<?=$url = isset($_SESSION['HTTP_ARTICLE_REFERER']) ? $_SESSION['HTTP_ARTICLE_REFERER'] : Yii::$app->request->referrer; ?>">
                         <a class="btn btn-primary" href="<?=$url = Url::to(['blog/articles']); ?>" target="_self" role="button" >Вернуться на главную</a>
+                        <a class="btn btn-primary" href="<?= $url = isset($_SESSION['HTTP_ARTICLE_REFERER']) ? $_SESSION['HTTP_ARTICLE_REFERER'] : Yii::$app->request->referrer; ?>" target="_self" role="button" >Вернуться назад</a>
                         <button type="submit" class="btn btn-primary">Написать коментарий</button>
                     </div>
                 </div>
             </form>
+
         <!-- тут комменты -->
-            <p><a name="comment"></a></p>
+
             <?php foreach ($comments as $id => $comment) : ?>
-                <div class="alert alert-primary   col-md-3-push" style="background-color: rgba(168,171,174,0.99); margin-right: auto; margin-left: auto; margin-top 0px; margin-bottom: 0px; padding-top: 0px; padding-bottom: 0px; ">
+            <div class="container" style="margin-bottom: 5px" >
+                <div class=" alert alert-primary  col-lg-3 col-sm-3 col-md-3" style="background-color: rgba(168,171,174,0.99); margin-right: auto; margin-left: auto; margin-top 0px; margin-bottom: 0px; padding-top: 0px; padding-bottom: 0px; ">
                     <h6>
-                        <span><b><?=$comment->commentdaytime?></b><br><b><?=$comment->autor?>:</b> <br><?=$comment->text?></span>
+                        <span><b><?=date("d-m-Y H:i:s", strtotime($comment->commentdaytime))?></b><br><b><?=$comment->autor?>:</b> <br><?=$comment->text?></span>
                     </h6>
                 </div>
+            </div>
             <?php endforeach; ?>
         </div>
     </div>
-
-
 
 <script src='/js/autosize.js'></script>
 

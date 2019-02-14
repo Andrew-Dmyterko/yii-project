@@ -19,6 +19,9 @@ AppAsset::register($this);
     <meta charset="<?= Yii::$app->charset ?>">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Подключаем фансибокс -->
+    <link  href="/js/fancybox356/jquery.fancybox.min.css" rel="stylesheet">
+
 
     <?= Html::csrfMetaTags() ?>
     <title><?= Html::encode($this->title) ?></title>
@@ -100,9 +103,16 @@ AppAsset::register($this);
 <!--        <p class="pull-right">--><?//= Yii::powered() ?><!--</p>-->
 <!--    </div>-->
 <!--</footer>-->
-
-
 <?php $this->endBody() ?>
+
+<!--<script type="text/javascript" src="/fancybox/jquery.fancybox.pack.js"></script>-->
+<script src="/js/fancybox356/jquery.fancybox.min.js"></script>
+
+<!--<script type="text/javascript">-->
+<!--    $(document).ready(function() {-->
+<!--        $("a.fancyimage").fancybox();-->
+<!--    });-->
+<!--</script>-->
 </body>
 </html>
 <?php $this->endPage() ?>

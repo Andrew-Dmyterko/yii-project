@@ -100,9 +100,11 @@ class SiteController extends Controller
         $model = new LoginForm();
         if ($model->load(Yii::$app->request->post()) && $model->login()) {
 
-            $url_refferer = isset($_SESSION['HTTP_REFERER']) ? $_SESSION['HTTP_REFERER'] : null;
+//            $url_refferer = isset($_SESSION['HTTP_REFERER']) ? $_SESSION['HTTP_REFERER'] : null;
+            $url_refferer = isset($session['HTTP_REFERER']) ? $session['HTTP_REFERER'] : null;
 
             $session->remove('HTTP_REFERER');
+            $session->remove('__returnUrl');
 
             return $this->goBack($url_refferer);
         }
@@ -120,9 +122,26 @@ class SiteController extends Controller
      */
     public function actionLogout()
     {
+        // стартуем сессию
+        $session = Yii::$app->session;
+        if (!$session->isActive) {
+            $session->open();
+        }
+
+        if (!(Yii::$app->request->getUrl()==$_SERVER['HTTP_REFERER']) && (!isset($session['HTTP_REFERER1'])) ) {
+            $session->set('HTTP_REFERER1', $_SERVER['HTTP_REFERER']);
+        }
+
+        $url_refferer = isset($session['HTTP_REFERER1']) ? $session['HTTP_REFERER1'] : null;
+
+        $session->remove('HTTP_REFERER1');
+        $session->remove('__returnUrl');
+
         Yii::$app->user->logout();
 
-        return $this->goBack($_SERVER['HTTP_REFERER']);
+
+
+        return $this->goBack($url_refferer);
     }
 
     /**
