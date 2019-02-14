@@ -72,12 +72,6 @@ class BlogController extends Controller
             $session->open();
         }
 
-//        echo Url::base(true).Yii::$app->request->getUrl();
-//        echo "br";
-//        echo $_SERVER['HTTP_REFERER']; die;
-
-//        if (!(Url::base(true).Yii::$app->request->getUrl()=='www.yii2.my/site/login')
-//            || !(Url::base(true).Yii::$app->request->getUrl()=='www.yii2.my/site/login')) {
 
         if (!(Url::base(true).Yii::$app->request->getUrl()==$_SERVER['HTTP_REFERER'])) {
             $session->set('HTTP_ARTICLE_REFERER', $_SERVER['HTTP_REFERER']);
