@@ -76,10 +76,13 @@ class BlogController extends Controller
 //        echo "br";
 //        echo $_SERVER['HTTP_REFERER']; die;
 
+//        if (!(Url::base(true).Yii::$app->request->getUrl()=='www.yii2.my/site/login')
+//            || !(Url::base(true).Yii::$app->request->getUrl()=='www.yii2.my/site/login')) {
+
         if (!(Url::base(true).Yii::$app->request->getUrl()==$_SERVER['HTTP_REFERER'])) {
             $session->set('HTTP_ARTICLE_REFERER', $_SERVER['HTTP_REFERER']);
         }
-
+//        }
 
         $articleId = Yii::$app->request->get('id');
         $article = Articles::find()->where(['id' => $articleId])->one();
@@ -240,8 +243,6 @@ class BlogController extends Controller
 
             $article = Articles::find()->where(['id' => $articleId])->one();
 
-//            $pic_dell = Article_pic::deleteAll(['id' => $articleId], );
-
 
             if (!(bool)$article) {
                 $url = Url::to(['blog/articles']);
@@ -273,6 +274,11 @@ class BlogController extends Controller
             // запись файлов в article_pic
             // загрузку файла надо переделать в виде статического метода
             if (!empty($_FILES['userfiles']['name'][0])){
+
+//                $pic_dell = Article_pic::deleteAll('articleid = :id',[':id' => $articleId]);
+                $pic_dell = Article_pic::deleteAll(['articleid' => $articleId]);
+//                $pic_dell = Yii::$app->db->createCommand("delete from article_pic where id = $articleId")->execute();
+
 
                 foreach ($_FILES['userfiles']['name'] as $id => $val) {
 

@@ -134,12 +134,14 @@ class SiteController extends Controller
 
         $url_refferer = isset($session['HTTP_REFERER1']) ? $session['HTTP_REFERER1'] : null;
 
+//        $artcle_url= isset($_SESSION['HTTP_ARTICLE_REFERER']) ? $_SESSION['HTTP_ARTICLE_REFERER'] : Yii::$app->request->referrer;
+
         $session->remove('HTTP_REFERER1');
-        $session->remove('__returnUrl');
+//        $session->remove('__returnUrl');
 
-        Yii::$app->user->logout();
+        Yii::$app->user->logout(false);
 
-
+//        $session->set('HTTP_ARTICLE_REFERER', $artcle_url);
 
         return $this->goBack($url_refferer);
     }

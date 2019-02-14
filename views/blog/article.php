@@ -64,6 +64,8 @@ if (!$session->isActive) {
                  <br>Автор статьи - <b><em><?= $article['author']; ?></em></b>
                 <b>Посетили</b> <span class="badge"><?=$article->visit?></span>
                 <b>Рейтинг</b> <span class="badge"><?=$article->rating?></span>
+                <b>Голосов</b> <span class="badge"><?=$article->voted?></span>
+
             </p>
 
         <!--- fancybox -->
@@ -88,12 +90,12 @@ if (!$session->isActive) {
 <!--    </div>-->
 <!-- голосовалка -->
 <?php if ($vote_show) : ?>
-<form class="col-sm-5" name="form_vote" method="post" enctype="multipart/form-data" action="<?=Url::base(true).Url::to(['blog/vote', 'id' => $article->id]); ?>" style="margin-left: 60px; margin-top: 20px">
+<form class="col-sm-6" name="form_vote" method="post" enctype="multipart/form-data" action="<?=Url::base(true).Url::to(['blog/vote', 'id' => $article->id]); ?>" style="margin-left: 60px; margin-top: 20px">
     <div class="row">
         <div class="form-group">
             <input type="hidden" name="_csrf" value="<?=Yii::$app->request->getCsrfToken()?>">
             <label for="vote">Голосовалка</label>
-            <input type="hidden" name="goback" value="<?=$url = isset($_SESSION['HTTP_ARTICLE_REFERER']) ? $_SESSION['HTTP_ARTICLE_REFERER'] : Yii::$app->request->referrer; ?>"
+            <input type="hidden" name="goback" value="<?=$url = isset($_SESSION['HTTP_ARTICLE_REFERER']) ? $_SESSION['HTTP_ARTICLE_REFERER'] : Yii::$app->request->referrer; ?>">
             <input id="vote" type="radio" name="vote_score" value="1" > <b> 1 </b>
             <input id="vote" type="radio" name="vote_score" value="2" > <b> 2 </b>
             <input id="vote" type="radio" name="vote_score" value="3" > <b> 3 </b>
@@ -101,12 +103,15 @@ if (!$session->isActive) {
             <input id="vote" type="radio" name="vote_score" value="5" > <b> 5 </b>
             <button class="btn btn-primary" type="submit">Голосуй</button>
             <b>Рейтинг</b> <span class="badge"><?=$article->rating?></span>
+            <b>Голосов</b> <span class="badge"><?=$article->voted?></span>
         </div>
     </div>
 </form>
 <?php else: ?>
-<div class="col-sm-5" style="margin-left: 45px; margin-top: 20px">
+<div class="col-sm-6" style="margin-left: 45px; margin-top: 20px">
 <b>Вы уже голосовали!!! Ждите!!! Рейтинг</b> <span class="badge"><?=$article->rating?></span>
+    <b>Голосов</b> <span class="badge"><?=$article->voted?></span>
+
 </div>
 <?php endif;?>
 

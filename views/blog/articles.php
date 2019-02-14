@@ -94,6 +94,7 @@ use app\models\Comments;
             <a href="<?= $url = Url::to(['blog/article', 'id' => $article->id])."#comment"; ?>"><b>Messages</b> <span class="badge"><?=Comments::find()->where(['articleid' => $article['id']])->count();?></span></a>
             <b>Посетили</b> <span class="badge"><?=$article->visit?></span>
             <b>Рейтинг</b> <span class="badge"><?=$article->rating?></span>
+            <b>Голосов</b> <span class="badge"><?=$article->voted?></span>
 
         </p>
     </div>
