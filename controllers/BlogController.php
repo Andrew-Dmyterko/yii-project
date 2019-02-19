@@ -78,6 +78,11 @@ class BlogController extends Controller
         }
 //        }
 
+//        echo "<pre>";
+//        var_dump($_SERVER);
+//        die;
+
+
         $articleId = Yii::$app->request->get('id');
         $article = Articles::find()->where(['id' => $articleId])->one();
         $pictures = Article_pic::find()->where(['articleid' => $articleId])->all();
@@ -232,11 +237,9 @@ class BlogController extends Controller
             // получаем post параметры
             $post = Yii::$app->request->post();
 
-
             $articleId = Yii::$app->request->get('id');
 
             $article = Articles::find()->where(['id' => $articleId])->one();
-
 
             if (!(bool)$article) {
                 $url = Url::to(['blog/articles']);
@@ -244,8 +247,27 @@ class BlogController extends Controller
                 return;
             }
 
+            // загрузка одиночного файла на заставку (титул)
             // загрузку файла надо переделать в виде статического метода
             if (!empty($_FILES['userfile']['name'])){
+
+                // проверяем есть (был ли файл)
+                if (!empty($article->image)) {
+                    // переносим
+                    try {
+                        if (file_exists ("images/".$article->image)) {
+                            rename("images/".$article->image, "img_del/".$article->image."-".microtime(true));
+                        }
+
+                    }catch (\Exception $exception) {
+                        $exception->getMessage();
+                    }
+
+//                        удаляем
+//                        if (file_exists ("images/".$article->image)) {
+//                        unlink("images/".$article->image);
+//                        }
+                }
 
                 $uploaddir = 'images/'; //  /var/www/html/yii-project/web/
                 $uploadfile = $uploaddir . $articleId."-main-".basename($_FILES['userfile']['name']);
@@ -253,26 +275,52 @@ class BlogController extends Controller
                 try {
                     move_uploaded_file($_FILES['userfile']['tmp_name'], $uploadfile);
                     Yii::$app->session->setFlash('success', "Файл ". $_FILES['userfile']['name']. "  корректен и был успешно загружен.");
-//                        echo "Файл корректен и был успешно загружен.";
-//                    Если все хорошо готовимся писать в базу
                     $article->image = $articleId."-main-".$_FILES['userfile']['name'];
                 } catch (\Throwable $exception) {
                     Yii::$app->session->setFlash('error ', "Возможная атака с помощью файловой загрузки! ".$exception->getMessage());
-//                        echo getAlert("Возможная атака с помощью файловой загрузки!");
                     $url = Url::to(['blog/articles']);
                     $this->redirect($url, 302);
                     return;
                 }
             }
 
-            // запись файлов в article_pic
+            // запись файлов в article_pic (для fancyBox)
             // загрузку файла надо переделать в виде статического метода
             if (!empty($_FILES['userfiles']['name'][0])){
 
+//                примеры запросов на удаление
 //                $pic_dell = Article_pic::deleteAll('articleid = :id',[':id' => $articleId]);
-                $pic_dell = Article_pic::deleteAll(['articleid' => $articleId]);
 //                $pic_dell = Yii::$app->db->createCommand("delete from article_pic where id = $articleId")->execute();
 
+
+                // надо грохнуть предыдушие если есть (были)
+                $pictures = Article_pic::find()->where(['articleid' => $articleId])->all();
+
+                // если чтото в базе есть то переносим (удаляем) файлы
+                if (count($pictures)) {
+                    foreach ($pictures as $picIndex => $picture) {
+
+                        // переносим
+                        try {
+                            if (file_exists ("images/".$picture->imagename)) {
+                                rename("images/".$picture->imagename, "img_del/".$picture->imagename."-".microtime(true));
+                            }
+
+                        }catch (\Exception $exception) {
+                            $exception->getMessage();
+                        }
+
+//                        удаляем
+//                        if (file_exists ("images/".$picture->imagename")) {
+//                        unlink("images/".$picture->imagename);
+//                        }
+
+                    }
+
+                    // чистим базу от старых картинок
+                    $pic_dell = Article_pic::deleteAll(['articleid' => $articleId]);
+
+                }
 
                 foreach ($_FILES['userfiles']['name'] as $id => $val) {
 
@@ -417,10 +465,6 @@ class BlogController extends Controller
                     }
                 }
 
-
-
-
-
                 Yii::$app->session->setFlash('success', "Статья $article->title успешно создана!!");
 
                 $url = Url::to(['blog/articles']);
@@ -447,10 +491,57 @@ class BlogController extends Controller
     {
         // проверяем шоб не гость
         if (!(Yii::$app->user->isGuest)) {
-            $articleId = Yii::$app->request->get('id', 1);
+            $articleId = Yii::$app->request->get('id');
             $article = Articles::find()->where(['id' => $articleId])->one();
+
             if ($article) {
                 try {
+                    // проверяем есть (был ли файл) потом переделать в виде функции
+                    if (!empty($article->image)) {
+                        // переносим
+                        try {
+                            if (file_exists ("images/".$article->image)) {
+
+                                rename("images/".$article->image, "img_del/".$article->image."-".microtime(true));
+                            }
+
+                        }catch (\Exception $exception) {
+                            $exception->getMessage();
+                        }
+
+//                        удаляем
+//                        if (file_exists ("images/".$article->image)) {
+//                        unlink("images/".$article->image);
+//                        }
+                    }
+
+                    // надо грохнуть все из Article_pic если есть (были)
+                    $pictures = Article_pic::find()->where(['articleid' => $articleId])->all();
+
+                    // если чтото в базе есть то переносим (удаляем) файлы
+                    if (count($pictures)) {
+                        foreach ($pictures as $picIndex => $picture) {
+
+                            // переносим
+                            try {
+                                if (file_exists ("images/".$picture->imagename)) {
+                                    rename("images/".$picture->imagename, "img_del/".$picture->imagename."-".microtime(true));
+                                }
+
+                            }catch (\Exception $exception) {
+                                $exception->getMessage();
+                            }
+
+//                        удаляем
+//                        if (file_exists ("\"images/\".$picture->imagename")) {
+//                        unlink("images/".$picture->imagename);
+//                        }
+
+                        }
+
+                    }
+
+
                     $title = $article->title;
                     $article->delete();
                     Yii::$app->session->setFlash('success', "Article '" . $title . "' was removed!");
