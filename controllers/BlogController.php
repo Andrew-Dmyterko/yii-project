@@ -15,8 +15,6 @@ use app\models\Articles;
 use yii\helpers\Url;
 use yii\data\Pagination;
 
-
-
 /**
  * Класс BlogController
  *
@@ -28,31 +26,53 @@ use yii\data\Pagination;
 class BlogController extends Controller
 {
     /**
-     * устанавливаем layout по умолчанию
+     * Устанавливаем layout по умолчанию
      * @var string Имя la0out
      */
     public $layout = 'blog';
 
-    // устанавливаем время для разрешения повторного голосования
+    /**
+     * Устанавливаем время для разрешения повторного голосования
+     * @var  integer секунды
+     */
     public const VOTE_TIME = 1800;
 
-    // true - переносим  false - удаляем
+    //
+    /**
+     * Задаем управление для метода filesDeleteRemove
+     *
+     * true - переносим картинки в директорию обозначенную в константе imagesDelPATH
+     * false - удаляем с диска безвозвратно
+     *
+     * @var  boolean
+     */
     private const deletORremove = true;
 
-    // задаем директории по умолчанию для картинои и для удаленных картинок
+    /**
+     * Задаем директории по умолчанию для картинои и для удаленных картинок
+     *
+     * imagesPATH для размещения картинок
+     * imagesDelPATH для размещения удаленных картинок
+     * 
+     * @var  string имя дирректорий
+     */
     private const imagesPATH = "images/";
     private const imagesDelPATH = "img_del/";
 
     /**
-     * удаляем или переносим физические файли на диске
+     * Удаляем или переносим физические файли на диске
      * при удалении или изменении статьи
+     *
      * @param array $articleId номер статьи
      * @param array $article статьия
-     * @param string $whatDelete "All" - все, "Titul" - картинка титула, "FBox" - картинки FancyBOXа,
-     * @param bool $delMove true - переносим файлы картинок  false - удаляем
+     * @param string $whatDelete Определяем какие картинки удалять
+     * "All" - все, "Titul" - картинка титула, "FBox" - картинки FancyBOXа
+     * @param bool $delMove Определяем метод удаления картинок
+     * true - переносим файлы картинок  false - удаляем
+     *
      * @return bool true - без ошибок, false с ошибками
      */
-    private  function filesDeleteRemove($articleId, $article, $whatDelete, bool $delMove = self::deletORremove )
+    private function filesDeleteRemove($articleId, $article, $whatDelete, bool $delMove = self::deletORremove )
     {
         $error = true;
         if ((!empty($article->image)) && ($whatDelete === "Title" || $whatDelete === "All")){
