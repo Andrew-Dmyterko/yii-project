@@ -23,13 +23,79 @@ class BlogController extends Controller
      * Мои акшины для блога
      */
 
-
+    /**
+     * устанавливаем layout по умолчанию
+     * @var string Имя la0out
+     */
     public $layout = 'blog';
+
+    // устанавливаем время для разрешения повторного голосования
     public const VOTE_TIME = 1800;
+
+    // true - переносим  false - удаляем
+    private const deletORremove = true;
+
+    // задаем директории по умолчанию для картинои и для удаленных картинок
+    private const imagesPATH = "images/";
+    private const imagesDelPATH = "img_del/";
+
+    /**
+     * удаляем или переносим физические файли на диске
+     * при удалении или изменении статьи
+     * @param array $articleId номер статьи
+     * @param array $article статьия
+     * @param string $whatDelete "All" - все, "Titul" - картинка титула, "FBox" - картинки FancyBOXа,
+     * @param bool $delMove true - переносим файлы картинок  false - удаляем
+     * @return bool true - без ошибок, false с ошибками
+     */
+    private  function filesDeleteRemove($articleId, $article, $whatDelete, bool $delMove = self::deletORremove )
+    {
+        $error = true;
+        if ((!empty($article->image)) && ($whatDelete === "Title" || $whatDelete === "All")){
+            try {
+                if (file_exists(self::imagesPATH . $article->image)) {
+                    // удаляем или переносим
+                    if ($delMove) {
+                        // переносим
+                        rename(self::imagesPATH . $article->image, self::imagesDelPATH . $article->image . "-" . microtime(true));
+                    }else {
+                        // удаляем
+                        unlink(self::imagesPATH . $article->image);
+                        }
+                    }
+                } catch (\Exception $exception) {
+                    var_dump($exception->getMessage());
+                    $error = false;
+                }
+        }
+        // надо грохнуть все из Article_pic если есть (были)
+        $pictures = Article_pic::find()->where(['articleid' => $articleId])->all();
+
+        // если чтото в базе есть то переносим (удаляем) файлы
+        if ((count($pictures)) && ($whatDelete === "FBox" || $whatDelete === "All")) {
+            foreach ($pictures as $picIndex => $picture) {
+                try {
+                    if (file_exists(self::imagesPATH . $picture->imagename)) {
+                        // удаляем или переносим
+                        if ($delMove) {
+                            // переносим
+                            rename(self::imagesPATH . $picture->imagename, self::imagesDelPATH . $picture->imagename . "-" . microtime(true));
+                        }else {
+                            // удаляем
+                            unlink(self::imagesPATH . $picture->imagename);
+                            }
+                        }
+                    } catch (\Exception $exception) {
+                        echo $exception->getMessage();
+                        $error = false;
+                    }
+            }
+        }
+        return $error;
+    }
 
     /**
      * Выводим все статьи
-     *
      */
     public function actionArticles()
     {
@@ -76,12 +142,6 @@ class BlogController extends Controller
         if (!(Url::base(true).Yii::$app->request->getUrl()==$_SERVER['HTTP_REFERER'])) {
             $session->set('HTTP_ARTICLE_REFERER', $_SERVER['HTTP_REFERER']);
         }
-//        }
-
-//        echo "<pre>";
-//        var_dump($_SERVER);
-//        die;
-
 
         $articleId = Yii::$app->request->get('id');
         $article = Articles::find()->where(['id' => $articleId])->one();
@@ -97,24 +157,12 @@ class BlogController extends Controller
 
         // при заходе на страничку увеличиваем посещаемость
         // если не решрешим страничку (шоб не неакручивали рейтинг)
-//        if (!(Url::base(true).Yii::$app->request->getUrl()==$_SERVER['HTTP_REFERER'])) {
         if (!(Url::base(true).Url::previous()==Url::base(true).Yii::$app->request->getUrl())) {
 
             Url::remember();
 
-//            echo "555", Url::base(true).Url::previous(), "<br>";
-//
-//            echo Url::base(true).Yii::$app->request->getUrl();
-//            echo "<br>";
-//
-//            echo $_SERVER['HTTP_REFERER'];
-//
-//            die;
-
-
             $article->visit++;
             $article->save();
-
         }
 
         $vote_show = false;
@@ -129,8 +177,6 @@ class BlogController extends Controller
             $vote_show = true;
         }
 
-
-        $this->layout = 'blog';
         $this->view->title = $article->title;
 
         return $this->render(
@@ -175,14 +221,9 @@ class BlogController extends Controller
 
         $comment->save();
 
-//        echo $articleId;
-//        die;
-
-
         $url = Url::to(['blog/article', 'id' => $articleId])."#comment";
 
         return $this->redirect($url, 302);
-
     }
 
     /**
@@ -202,7 +243,6 @@ class BlogController extends Controller
         $post = Yii::$app->request->post();
 
         $articleId = Yii::$app->request->get('id');
-
         $article = Articles::find()->where(['id' => $articleId])->one();
 
         if (isset($post['vote_score'])) {
@@ -238,38 +278,19 @@ class BlogController extends Controller
             $post = Yii::$app->request->post();
 
             $articleId = Yii::$app->request->get('id');
-
             $article = Articles::find()->where(['id' => $articleId])->one();
 
             if (!(bool)$article) {
                 $url = Url::to(['blog/articles']);
-                $this->redirect($url, 302);
-                return;
+                return $this->redirect($url, 302);
             }
 
             // загрузка одиночного файла на заставку (титул)
-            // загрузку файла надо переделать в виде статического метода
             if (!empty($_FILES['userfile']['name'])){
 
-                // проверяем есть (был ли файл)
-                if (!empty($article->image)) {
-                    // переносим
-                    try {
-                        if (file_exists ("images/".$article->image)) {
-                            rename("images/".$article->image, "img_del/".$article->image."-".microtime(true));
-                        }
+                $this->filesDeleteRemove($articleId, $article, "Title");
 
-                    }catch (\Exception $exception) {
-                        $exception->getMessage();
-                    }
-
-//                        удаляем
-//                        if (file_exists ("images/".$article->image)) {
-//                        unlink("images/".$article->image);
-//                        }
-                }
-
-                $uploaddir = 'images/'; //  /var/www/html/yii-project/web/
+                $uploaddir = self::imagesPATH; //  /var/www/html/yii-project/web/
                 $uploadfile = $uploaddir . $articleId."-main-".basename($_FILES['userfile']['name']);
 
                 try {
@@ -279,58 +300,30 @@ class BlogController extends Controller
                 } catch (\Throwable $exception) {
                     Yii::$app->session->setFlash('error ', "Возможная атака с помощью файловой загрузки! ".$exception->getMessage());
                     $url = Url::to(['blog/articles']);
-                    $this->redirect($url, 302);
-                    return;
+                    return $this->redirect($url, 302);
                 }
             }
 
             // запись файлов в article_pic (для fancyBox)
-            // загрузку файла надо переделать в виде статического метода
             if (!empty($_FILES['userfiles']['name'][0])){
 
-//                примеры запросов на удаление
+                $this->filesDeleteRemove($articleId, $article, "FBox");
+
+//                примеры запросов на удаление для себя
 //                $pic_dell = Article_pic::deleteAll('articleid = :id',[':id' => $articleId]);
 //                $pic_dell = Yii::$app->db->createCommand("delete from article_pic where id = $articleId")->execute();
 
-
-                // надо грохнуть предыдушие если есть (были)
-                $pictures = Article_pic::find()->where(['articleid' => $articleId])->all();
-
-                // если чтото в базе есть то переносим (удаляем) файлы
-                if (count($pictures)) {
-                    foreach ($pictures as $picIndex => $picture) {
-
-                        // переносим
-                        try {
-                            if (file_exists ("images/".$picture->imagename)) {
-                                rename("images/".$picture->imagename, "img_del/".$picture->imagename."-".microtime(true));
-                            }
-
-                        }catch (\Exception $exception) {
-                            $exception->getMessage();
-                        }
-
-//                        удаляем
-//                        if (file_exists ("images/".$picture->imagename")) {
-//                        unlink("images/".$picture->imagename);
-//                        }
-
-                    }
-
-                    // чистим базу от старых картинок
-                    $pic_dell = Article_pic::deleteAll(['articleid' => $articleId]);
-
-                }
+                // чистим базу от старых картинок
+                $pic_dell = Article_pic::deleteAll(['articleid' => $articleId]);
 
                 foreach ($_FILES['userfiles']['name'] as $id => $val) {
 
-                    $uploaddir = 'images/'; //  /var/www/html/yii-project/web/
+                    $uploaddir = self::imagesPATH; //  /var/www/html/yii-project/web/
                     $uploadfile = $uploaddir . $articleId."-fbox-".basename($_FILES['userfiles']['name'][$id]);
 
                     try {
                         move_uploaded_file($_FILES['userfiles']['tmp_name'][$id], $uploadfile);
                         Yii::$app->session->setFlash('success', "Файл " . $_FILES['userfiles']['name'][$id] . "  корректен и был успешно загружен.");
-//                        echo "Файл корректен и был успешно загружен.";
 
                         $pic = new Article_pic();
 
@@ -341,10 +334,8 @@ class BlogController extends Controller
                         unset ($pic);
                     } catch (\Throwable $exception) {
                         Yii::$app->session->setFlash('error ', "Возможная атака с помощью файловой загрузки! " . $exception->getMessage());
-//                        echo getAlert("Возможная атака с помощью файловой загрузки!");
                         $url = Url::to(['blog/articles']);
-                        $this->redirect($url, 302);
-                        return;
+                        return $this->redirect($url, 302);
                     }
                 }
             }
@@ -375,7 +366,7 @@ class BlogController extends Controller
             );
         } else {
             $url = Url::to(['blog/articles']);
-            $this->redirect($url, 302);
+            return $this->redirect($url, 302);
         }
     }
 
@@ -396,7 +387,6 @@ class BlogController extends Controller
             // получаем post параметры
             $post = Yii::$app->request->post();
 
-
             if (isset ($post['title']) || isset ($post['article_small_text']) || isset ($post['article_full_text'])) {
 
                 $article = new Articles();
@@ -411,18 +401,16 @@ class BlogController extends Controller
                 $article['date-time_update'] = $todayDayTime;
                 $article->date_create = $today;
 
-
                 $article->save();
 
                 if (!empty($_FILES['userfile']['name'])){
 
-                    $uploaddir = 'images/'; //  /var/www/html/yii-project/web/
+                    $uploaddir = self::imagesPATH; //  /var/www/html/yii-project/web/
                     $uploadfile = $uploaddir . $article->id."-main-".basename($_FILES['userfile']['name']);
 
                     try {
                         move_uploaded_file($_FILES['userfile']['tmp_name'], $uploadfile);
                         Yii::$app->session->setFlash('success', "Файл ". $_FILES['userfile']['name']. "  корректен и был успешно загружен.");
-//                        echo "Файл корректен и был успешно загружен.";
                     } catch (\Throwable $exception) {
                         Yii::$app->session->setFlash('error ', "Возможная атака с помощью файловой загрузки! ".$exception->getMessage());
 //                        echo getAlert("Возможная атака с помощью файловой загрузки!");
@@ -435,18 +423,16 @@ class BlogController extends Controller
                 $article->save();
 
                 // запись файлов в article_pic
-                // загрузку файла надо переделать в виде статического метода
                 if (!empty($_FILES['userfiles']['name'][0])){
 
                     foreach ($_FILES['userfiles']['name'] as $id => $val) {
 
-                        $uploaddir = 'images/'; //  /var/www/html/yii-project/web/
+                        $uploaddir = self::imagesPATH; //  /var/www/html/yii-project/web/
                         $uploadfile = $uploaddir .$article->id."-fbox-". basename($_FILES['userfiles']['name'][$id]);
 
                         try {
                             move_uploaded_file($_FILES['userfiles']['tmp_name'][$id], $uploadfile);
                             Yii::$app->session->setFlash('success', "Файл " . $_FILES['userfiles']['name'][$id] . "  корректен и был успешно загружен.");
-//                        echo "Файл корректен и был успешно загружен.";
 
                             $pic = new Article_pic();
 
@@ -457,10 +443,8 @@ class BlogController extends Controller
                             unset ($pic);
                         } catch (\Throwable $exception) {
                             Yii::$app->session->setFlash('error ', "Возможная атака с помощью файловой загрузки! " . $exception->getMessage());
-//                        echo getAlert("Возможная атака с помощью файловой загрузки!");
                             $url = Url::to(['blog/articles']);
-                            $this->redirect($url, 302);
-                            return;
+                            return $this->redirect($url, 302);
                         }
                     }
                 }
@@ -468,7 +452,7 @@ class BlogController extends Controller
                 Yii::$app->session->setFlash('success', "Статья $article->title успешно создана!!");
 
                 $url = Url::to(['blog/articles']);
-                $this->redirect($url, 302);
+                return $this->redirect($url, 302);
             } else {
 
                 $this->view->title = "Новая статья";
@@ -479,7 +463,7 @@ class BlogController extends Controller
             }
         } else {
             $url = Url::to(['blog/articles']);
-            $this->redirect($url, 302);
+            return $this->redirect($url, 302);
         }
     }
 
@@ -491,56 +475,13 @@ class BlogController extends Controller
     {
         // проверяем шоб не гость
         if (!(Yii::$app->user->isGuest)) {
+
             $articleId = Yii::$app->request->get('id');
             $article = Articles::find()->where(['id' => $articleId])->one();
 
             if ($article) {
                 try {
-                    // проверяем есть (был ли файл) потом переделать в виде функции
-                    if (!empty($article->image)) {
-                        // переносим
-                        try {
-                            if (file_exists ("images/".$article->image)) {
-
-                                rename("images/".$article->image, "img_del/".$article->image."-".microtime(true));
-                            }
-
-                        }catch (\Exception $exception) {
-                            $exception->getMessage();
-                        }
-
-//                        удаляем
-//                        if (file_exists ("images/".$article->image)) {
-//                        unlink("images/".$article->image);
-//                        }
-                    }
-
-                    // надо грохнуть все из Article_pic если есть (были)
-                    $pictures = Article_pic::find()->where(['articleid' => $articleId])->all();
-
-                    // если чтото в базе есть то переносим (удаляем) файлы
-                    if (count($pictures)) {
-                        foreach ($pictures as $picIndex => $picture) {
-
-                            // переносим
-                            try {
-                                if (file_exists ("images/".$picture->imagename)) {
-                                    rename("images/".$picture->imagename, "img_del/".$picture->imagename."-".microtime(true));
-                                }
-
-                            }catch (\Exception $exception) {
-                                $exception->getMessage();
-                            }
-
-//                        удаляем
-//                        if (file_exists ("\"images/\".$picture->imagename")) {
-//                        unlink("images/".$picture->imagename);
-//                        }
-
-                        }
-
-                    }
-
+                    if (!($this->filesDeleteRemove($articleId,$article,"All"))){echo "немогу удалить"; die;}
 
                     $title = $article->title;
                     $article->delete();
@@ -551,38 +492,37 @@ class BlogController extends Controller
             }
 
             $url = Url::to(['blog/articles']);
-            $this->redirect($url, 302);
+            return $this->redirect($url, 302);
         } else {
             $url = Url::to(['blog/articles']);
-            $this->redirect($url, 302);
+            return $this->redirect($url, 302);
         }
     }
 
-
-    public function actionAdd_pics()
-    {
-        // проверяем шоб не гость
-        if (!(Yii::$app->user->isGuest)) {
-
-            $dir    = '.';
-            $files1 = scandir($dir);
-            $files2 = scandir($dir, 1);
-
-            print_r($files1);
-            print_r($files2);
-
-            return $this->render(
-                'pictures',
-                [
-                    '$pictures' => $files1,
-                    '$pictures1' => $files2,
-                ]
-            );
-        } else {
-            $url = Url::to(['blog/articles']);
-            $this->redirect($url, 302);
-        }
-    }
+//    public function actionAdd_pics()
+//    {
+//        // проверяем шоб не гость
+//        if (!(Yii::$app->user->isGuest)) {
+//
+//            $dir    = '.';
+//            $files1 = scandir($dir);
+//            $files2 = scandir($dir, 1);
+//
+//            print_r($files1);
+//            print_r($files2);
+//
+//            return $this->render(
+//                'pictures',
+//                [
+//                    '$pictures' => $files1,
+//                    '$pictures1' => $files2,
+//                ]
+//            );
+//        } else {
+//            $url = Url::to(['blog/articles']);
+//            $this->redirect($url, 302);
+//        }
+//    }
 
     /**
      * Выводим страничку Связаться с нами
@@ -602,8 +542,6 @@ class BlogController extends Controller
         ]);
     }
 
-
-
     /**
      * Выводим страничку О нас
      *
@@ -614,6 +552,5 @@ class BlogController extends Controller
         $this->view->title = "Киннориум. О нас.";
         return $this->render('about');
     }
-
 
 }
