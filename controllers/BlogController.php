@@ -17,12 +17,16 @@ use yii\data\Pagination;
 
 
 
+/**
+ * Класс BlogController
+ *
+ * Мои акшины для блога
+ *
+ * @author  Дмитерко Андрей andrew.dmyterko@gmail.com
+ * @version 1.0
+ */
 class BlogController extends Controller
 {
-    /**
-     * Мои акшины для блога
-     */
-
     /**
      * устанавливаем layout по умолчанию
      * @var string Имя la0out
@@ -156,7 +160,7 @@ class BlogController extends Controller
         }
 
         // при заходе на страничку увеличиваем посещаемость
-        // если не решрешим страничку (шоб не неакручивали рейтинг)
+        // если не рефрешим страничку (шоб не неакручивали рейтинг)
         if (!(Url::base(true).Url::previous()==Url::base(true).Yii::$app->request->getUrl())) {
 
             Url::remember();
@@ -262,7 +266,6 @@ class BlogController extends Controller
         return $this->redirect($url, 302);
 
     }
-
 
     /**
      * Редактируем одну статью
@@ -415,12 +418,11 @@ class BlogController extends Controller
                         Yii::$app->session->setFlash('error ', "Возможная атака с помощью файловой загрузки! ".$exception->getMessage());
 //                        echo getAlert("Возможная атака с помощью файловой загрузки!");
                         $url = Url::to(['blog/articles']);
-                        $this->redirect($url, 302);
-                        return;
+                        return $this->redirect($url, 302);
                     }
+                    $article->image = $article->id."-main-".$_FILES['userfile']['name'];
+                    $article->save();
                 }
-                $article->image = $article->id."-main-".$_FILES['userfile']['name'];
-                $article->save();
 
                 // запись файлов в article_pic
                 if (!empty($_FILES['userfiles']['name'][0])){
@@ -552,5 +554,4 @@ class BlogController extends Controller
         $this->view->title = "Киннориум. О нас.";
         return $this->render('about');
     }
-
 }
