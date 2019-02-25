@@ -27,12 +27,14 @@ class BlogController extends Controller
 {
     /**
      * Устанавливаем layout по умолчанию
-     * @var string Имя la0out
+     *
+     * @var string Имя $layout
      */
     public $layout = 'blog';
 
     /**
      * Устанавливаем время для разрешения повторного голосования
+     *
      * @var  integer секунды
      */
     public const VOTE_TIME = 1800;
@@ -119,7 +121,11 @@ class BlogController extends Controller
     }
 
     /**
-     * Выводим все статьи
+     * Выводим все статьи из базы
+     *
+     * @param void
+     *
+     * @return string  Передаем данные во view 'articles'
      */
     public function actionArticles()
     {
@@ -151,8 +157,14 @@ class BlogController extends Controller
     }
 
     /**
-     * Выводим одну статью
+     * Выводим одну статью из базы
      *
+     * выбираем id из get параметров запроса
+     * на основании id достаем данные из базы
+     *
+     * @param void Данные берем из GET параметров
+     *
+     * @return string  Передаем данные во view 'article'
      */
     public function actionArticle()
     {
@@ -161,7 +173,6 @@ class BlogController extends Controller
         if (!$session->isActive) {
             $session->open();
         }
-
 
         if (!(Url::base(true).Yii::$app->request->getUrl()==$_SERVER['HTTP_REFERER'])) {
             $session->set('HTTP_ARTICLE_REFERER', $_SERVER['HTTP_REFERER']);
@@ -215,8 +226,12 @@ class BlogController extends Controller
     }
 
     /**
-     * Добавляем коментарий
+     * Добавляем коментарий к статье
+     * коментарий пишем в базу и возвращаемся
      *
+     * @param void Данные берем из POST параметров
+     *
+     * @return string  Делаем редирект на страницу 'blog/article' с id статьи
      */
     public function actionComment()
     {
@@ -252,7 +267,13 @@ class BlogController extends Controller
 
     /**
      * Добавляем голcовалку и высчитываем рейтинг
+     * голоса и рейтинг пишем в базу
+     * устанавливаем переменную сессии с временем голосования
+     * чтоб не накручивали рейтинг
      *
+     * @param void Данные берем из POST параметров
+     *
+     * @return string  Делаем редирект на страницу 'blog/article' с id статьи
      */
     public function actionVote()
     {
@@ -277,19 +298,23 @@ class BlogController extends Controller
 
             $article->save();
             $session->set("vote.$articleId", time());
-
         }
 
         $this->layout = 'blog';
 //        $url = Url::to(['blog/article', 'id' => $articleId])."#comment";
         $url = $post['goback'];
         return $this->redirect($url, 302);
-
     }
 
     /**
      * Редактируем одну статью
+     * можем изменять текст и все картинки
+     * данные пишем в базу
      *
+     * @param void Данные берем из POST GET FILES параметров
+     *
+     * @return string  Делаем редирект на страницу 'blog/articles' после update
+     * или вывод views 'edit' для редактирования
      */
     public function actionEdit()
     {
@@ -395,7 +420,12 @@ class BlogController extends Controller
 
     /**
      * Добавляем новую статью
+     * данные пишем в базу
      *
+     * @param void Данные берем из POST GET FILES параметров
+     *
+     * @return string  Делаем редирект на страницу 'blog/articles' после insert
+     * или вывод views 'add' для создания новой
      */
     public function actionAdd()
     {
@@ -490,8 +520,12 @@ class BlogController extends Controller
     }
 
     /**
-     * удаляем статью
+     * Удаляем статью из базы
+     * удаляем с диска или переносим файлы картинок
      *
+     * @param void Данные берем из GET параметров
+     *
+     * @return string  Делаем редирект на страницу 'blog/articles'
      */
     public function actionDelete()
     {
@@ -549,7 +583,9 @@ class BlogController extends Controller
     /**
      * Выводим страничку Связаться с нами
      *
-     * @return Response|string
+     * @param void
+     *
+     * @return string Выводим view 'contact'
      */
     public function actionContact()
     {
@@ -567,7 +603,9 @@ class BlogController extends Controller
     /**
      * Выводим страничку О нас
      *
-     * @return string
+     * @param void
+     *
+     * @return string Выводим view 'about'
      */
     public function actionAbout()
     {

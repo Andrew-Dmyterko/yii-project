@@ -15,6 +15,7 @@ $params = [
     'database' => 'blog_db'
 ];
 
+// жанры с кодами жанров
 $genres = [
     1 => 'украинский',
     2 => 'аниме',
@@ -91,10 +92,8 @@ foreach ($articles as $indexA => $article) {
             echo $e->getMessage();
         }
         if ($result) {
-            echo $result;
             echo "OK! ".$article['id']."--".$ganre_str." --- ".$ganre_num."<br>";
         } else {
-            echo $result;
             echo "ERROR! ".$article['id']."--".$ganre_str." --- ".$ganre_num."<br>";
         }
     }
