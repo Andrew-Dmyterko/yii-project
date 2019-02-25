@@ -53,7 +53,7 @@ class BlogController extends Controller
      *
      * imagesPATH для размещения картинок
      * imagesDelPATH для размещения удаленных картинок
-     * 
+     *
      * @var  string имя дирректорий
      */
     private const imagesPATH = "images/";
