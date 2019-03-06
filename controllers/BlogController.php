@@ -484,7 +484,7 @@ class BlogController extends Controller
 
                         try {
                             move_uploaded_file($_FILES['userfiles']['tmp_name'][$id], $uploadfile);
-                            Yii::$app->session->setFlash('success', "Файл " . $_FILES['userfiles']['name'][$id] . "  корректен и был успешно загружен.");
+                            Yii::$app->session->setFlash('success', "Файл " . $_FILES['userfiles']['name'][$id] . " корректен и был успешно загружен.");
 
                             $pic = new Article_pic();
 
