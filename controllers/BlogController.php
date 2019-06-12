@@ -62,6 +62,13 @@ class BlogController extends Controller
     private const imagesDelPATH = "img_del/";
 
     /**
+     * Задаем значение по умолчанию для ко-ва статей на странице для пагинации
+     *
+     * @var  integer ко-во статей на странице
+     */
+    private const defaultPagination = 2;
+
+    /**
      * Удаляем или переносим физические файли на диске
      * при удалении или изменении статьи
      *
@@ -132,9 +139,14 @@ class BlogController extends Controller
         $query = Articles::find();
         $allArticlesCount = $query->count();
 
+//        if (!isset($_COOKIE['yii2Pagination'])) {
+//            setcookie("yii2Pagination", 7, time() + 3600, "/");
+//        }
+
         $pagination = new Pagination([
             'totalCount' => $allArticlesCount,
-            'pageSize' => 2,
+            // Проверяем если есть куки то берем ко-во статей на стр. для пагинации оттуда а если нету то из константы defaultPagination
+            'pageSize' => (!isset($_COOKIE['yii2Pagination']) ? self::defaultPagination : $_COOKIE['yii2Pagination']),
             'pageSizeParam' => false,
             'forcePageParam' => false
         ]);
